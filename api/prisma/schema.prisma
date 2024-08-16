@@ -1,0 +1,40 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(uuid())
+  name String @unique
+  password String
+
+  @@map("users")
+}
+
+model Passenger {
+  id String @id @default(uuid())
+  name String
+  code String @unique
+  transaction Transaction[]
+  cashBack Boolean @default(false)
+
+  @@map("passenger")
+}
+
+model Transaction {
+  id String @id @default(uuid())
+  passenger Passenger @relation(fields: [passenger_code], references: [code])
+  passenger_code String
+  ticketPrice Float 
+  local String
+  
+  createdAt DateTime @default(now())
+
+  @@map("transaction")
+}
+
