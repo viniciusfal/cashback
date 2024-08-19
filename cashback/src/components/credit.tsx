@@ -54,7 +54,7 @@ export function Credit({ passengerCode, passengerName }: CreditProps) {
       await transaction({
         ticketPrice: parseFloat(data.ticketPrice.toString()),
         passenger_code: data.passenger_code,
-        local: data.local
+        local: data.local,
       })
 
       toast.success('Creditos registrados com sucesso')

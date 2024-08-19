@@ -26,9 +26,9 @@ export function Dashboard() {
             placeholder="Busque por Nome ou Codigo"
             className=" tex-muted-foreground py-4 px-2 placeholder:text-sm bg-transparent"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value) }
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <Button variant={'secondary'} >
+          <Button variant={'secondary'}>
             <Search className="w-4 h-4 hover:text-green-500 transition-colors" />
           </Button>
         </div>
@@ -38,7 +38,7 @@ export function Dashboard() {
             <TableRow className="">
               <TableHead className="w-[280px]">Codigo</TableHead>
               <TableHead className="w-[400px]">Nome</TableHead>
-              
+
               <TableHead className="w-[]">Registrar Creditos</TableHead>
             </TableRow>
           </TableHeader>

@@ -10,7 +10,12 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 
-export function DialogCashBack({ isOpen, onClose, onConfirm, transaction }) {
+export function DialogCashBack({
+  isOpen,
+  onClose,
+  onConfirm,
+  transaction,
+}: any) {
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogTrigger>Open</AlertDialogTrigger>

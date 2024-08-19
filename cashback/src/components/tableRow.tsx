@@ -1,18 +1,10 @@
 import { TableCell, TableRow } from '@/components/ui/table'
-import { Button } from './ui/button'
-import { useEffect, useState } from 'react'
 import { Credit } from '@/components/credit'
-import { Progress } from './ui/progress'
 
 import { useQuery } from '@tanstack/react-query'
 import { getPassenger } from '@/api/get-passenger'
 
-export function TableRowContent({ searchQuery }) {
-  const [isActive, setIsActive] = useState(false)
-  const [progress, setProgress] = useState(0)
-
-
-
+export function TableRowContent({ searchQuery }: any) {
   const { data: passengers } = useQuery({
     queryKey: ['passengers'],
     queryFn: getPassenger,
@@ -21,14 +13,12 @@ export function TableRowContent({ searchQuery }) {
   const filteredPassengers = passengers?.filter(
     (passenger) =>
       passenger.code === searchQuery ||
-      passenger.name === (searchQuery.toUpperCase()),
-
+      passenger.name === searchQuery.toUpperCase(),
   )
 
   if (!searchQuery) {
     return null
   }
-
 
   return (
     <>
