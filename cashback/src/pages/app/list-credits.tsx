@@ -13,17 +13,22 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { format } from 'date-fns'
+import JsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+
 import { ptBR } from 'date-fns/locale'
 import { Button } from '@/components/ui/button'
 import { DialogCashBack } from '@/components/dialog-cashback'
 import { RadioGroup } from '@radix-ui/react-radio-group'
 import { RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
-import { Coins } from 'lucide-react'
+import { Coins, ConeIcon } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 
 export function ListCredits() {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false)
   const [selectedTransaction, setSelectedTransaction] = useState(null)
+  const [selectDate, setSelectDate] = useState(new Date())
   const [cashbackConfirmed, setCashbackConfirmed] = useState<{
     [key: string]: boolean
   }>({})
@@ -31,6 +36,8 @@ export function ListCredits() {
 
   const simplescash = 'Simples - '
   const supercash = 'Super - '
+
+  const formattedDate = selectDate.toISOString().split('T')[0]
 
   const { data: transactions, isLoading: isLoadingTransactions } = useQuery({
     queryKey: ['transactions'],
@@ -105,29 +112,104 @@ export function ListCredits() {
       : { name: 'Desconhecido', code: 'Desconhecido' }
   }
 
-  const filteredCredits = transactions?.filter((transaction) => {
-    const transactionDate = new Date(transaction.createdAt)
-    const today = new Date()
-
-    return (
-      transactionDate.getDate() === today.getDate() &&
-      transactionDate.getMonth() === today.getMonth() &&
-      transactionDate.getFullYear() === today.getFullYear()
-    )
-  })
-
   if (isLoadingTransactions || isLoadingPassengers) {
     return <div>Carregando...</div>
   }
 
+  const startOfDay = (date) => {
+    const d = new Date(date)
+    d.setHours(0, 0, 0, 0)
+    return d
+  }
+
+  const endOfDay = (date) => {
+    const d = new Date(date)
+    d.setHours(23, 59, 59, 999)
+    return d
+  }
+
+  const filteredCredits = transactions?.filter((transaction) => {
+    const transactionDate = new Date(transaction.createdAt)
+    return (
+      transactionDate >= startOfDay(selectDate) &&
+      transactionDate <= endOfDay(selectDate)
+    )
+  })
+
+  const handleDateChange = (event) => {
+    // Obtemos a data no formato 'yyyy-mm-dd'
+    const newDateString = event.target.value
+    const [year, month, day] = newDateString.split('-').map(Number)
+
+    // Criar uma nova data com ano, mês e dia, e definir o horário como início do dia local
+    const newDate = new Date(year, month - 1, day)
+    newDate.setHours(0, 0, 0, 0)
+
+    setSelectDate(newDate)
+  }
+
+  const exportPDF = async () => {
+    const doc = new JsPDF()
+    doc.setFontSize(14)
+
+    const tableData = doesFullVisibility ? filteredCredits : transactions
+    const rows = tableData?.map((transaction, index) => {
+      const { name, code } = getPassengerDetails(transaction.passenger_code)
+      return [
+        index + 1,
+        code,
+        name,
+        `R$ ${transaction.ticketPrice}`,
+        transaction.local,
+        cashbackConfirmed[transaction.id]
+          ? calcularCashback(transaction.local, transaction.ticketPrice)
+          : 'Não habilitado',
+        format(transaction.createdAt, 'dd/MM/yyyy', { locale: ptBR }),
+      ]
+    })
+
+    autoTable(doc, {
+      head: [['', 'Código', 'Nome', 'Valor', 'Local', 'Cashback', 'Data']],
+      body: rows,
+      theme: 'striped',
+      styles: { halign: 'left', cellPadding: { vertical: 4 } },
+      headStyles: {
+        fillColor: [4, 120, 87],
+        fontStyle: 'bold',
+        textColor: [240, 253, 250],
+        minCellHeight: 10,
+        cellPadding: {
+          horizontal: 2,
+          vertical: 4,
+        },
+      },
+      bodyStyles: {
+        minCellHeight: 10,
+        cellWidth: 'auto',
+      },
+    })
+
+    doc.save('table-cashback.pdf')
+  }
   return (
     <div>
       <Helmet title="Historico" />
       <div className="flex space-x-8 items-baseline">
         <h1 className="font-bold text-xl mb-8">Historico de transações</h1>
 
-        <div className="flex gap-4">
+        <div className="flex gap-2">
           <RadioGroup defaultValue="option-one" className="flex gap-4">
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem
+                value="option-two"
+                id="option-two"
+                onClick={() => setDoesFullVisibility(false)}
+              />
+              <Label htmlFor="option-two" className="text-sm ">
+                Todos
+              </Label>
+            </div>
+
             <div className="flex items-center space-x-2">
               <RadioGroupItem
                 value="option-one"
@@ -135,18 +217,20 @@ export function ListCredits() {
                 onClick={() => setDoesFullVisibility(true)}
               />
               <Label htmlFor="option-one" className="text-sm">
-                Do dia
+                Data
               </Label>
             </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem
-                value="option-two"
-                id="option-two"
-                onClick={() => setDoesFullVisibility(false)}
-              />
-              <Label htmlFor="option-two">Exibir Todos</Label>
-            </div>
           </RadioGroup>
+          <Input
+            type="date"
+            value={formattedDate}
+            onChange={handleDateChange}
+            className="p-2 w-1/2 text-sm border-"
+          />
+
+          <Button onClick={() => exportPDF()} variant="outline">
+            Gerar PDF
+          </Button>
         </div>
       </div>
       <Table>
