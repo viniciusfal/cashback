@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,32 +8,32 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
-  name String @unique
+  id       String @id @default(uuid())
+  name     String @unique
   password String
 
   @@map("users")
 }
 
 model Passenger {
-  id String @id @default(uuid())
-  name String
-  code String @unique
+  id          String        @id @default(uuid())
+  name        String
+  code        String        @unique
   transaction Transaction[]
-  cashBack Boolean @default(false)
+  cashBack    Boolean       @default(false)
 
   @@map("passenger")
 }
 
 model Transaction {
-  id String @id @default(uuid())
-  passenger Passenger @relation(fields: [passenger_code], references: [code])
+  id             String    @id @default(uuid())
+  passenger      Passenger @relation(fields: [passenger_code], references: [code])
   passenger_code String
-  ticketPrice Float 
-  local String
-  
+  ticketPrice    Float
+  local          String
+  point          String
+
   createdAt DateTime @default(now())
 
   @@map("transaction")
 }
-

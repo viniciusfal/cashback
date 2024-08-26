@@ -23,6 +23,7 @@ describe('register Use Case', () => {
     const transaction = await sut.execute({
       passenger_code: passenger.code,
       ticketPrice: 250.0,
+      point: 'Planaltina-DF',
       local: 'planaltina-go',
     })
 

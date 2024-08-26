@@ -10,11 +10,11 @@ export async function registerTransaction(
     ticketPrice: z.number(),
     passenger_code: z.string(),
     local: z.string(),
+    point: z.string(),
   })
 
-  const { ticketPrice, passenger_code, local } = registerBodySchema.parse(
-    request.body,
-  )
+  const { ticketPrice, passenger_code, local, point } =
+    registerBodySchema.parse(request.body)
 
   try {
     const registerTransactionUseCase = makeRegisterTransaction()
@@ -23,6 +23,7 @@ export async function registerTransaction(
       ticketPrice,
       passenger_code,
       local,
+      point,
     })
   } catch (err) {
     return reply.status(400).send()

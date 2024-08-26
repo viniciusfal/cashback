@@ -12,6 +12,7 @@ interface Transaction {
   passenger_code: string
   ticketPrice: number
   local: string
+  point: string
 }
 
 export async function importTransactions() {
@@ -60,6 +61,7 @@ export async function importTransactions() {
               passenger_code: transaction.passenger_code,
               ticketPrice: parseInt(transaction.ticketPrice.toString()),
               local: transaction.local,
+              point: transaction.point,
             })
 
             console.log(transactions)

@@ -15,11 +15,13 @@ export class RegisterTransaction {
     ticketPrice,
     passenger_code,
     local,
+    point,
   }: CreateTransaction): Promise<Transaction> {
     const transaction = await this.transactionRepository.create({
       ticketPrice,
       passenger_code,
-      local: local.toUpperCase()
+      local: local.toUpperCase(),
+      point: point.toUpperCase(),
     })
 
     return transaction

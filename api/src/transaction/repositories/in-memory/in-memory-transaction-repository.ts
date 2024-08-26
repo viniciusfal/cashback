@@ -20,6 +20,7 @@ export class InMemoryTransactionRepository implements TransactionRepository {
       passenger_code: data.passenger_code,
       ticketPrice: data.ticketPrice,
       local: data.local,
+      point: data.point,
       createdAt: new Date(),
     }
 

@@ -5,6 +5,7 @@ export interface CreateTransaction {
   ticketPrice: number
   passenger_code: string
   local: string
+  point: string
   createdAt?: string | Date | undefined
 }
 export interface TransactionRepository {
