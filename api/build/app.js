@@ -569,7 +569,6 @@ async function importPassengers() {
       });
       parser.on("end", async () => {
         try {
-          console.log("Passengers:", passengers);
           for (const passenger of passengers) {
             const registerPassengerUseCase = makeRegisterPassenger();
             await registerPassengerUseCase.execute({

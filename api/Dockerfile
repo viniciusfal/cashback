@@ -1,20 +1,26 @@
-# Dockerfile para API
-FROM node:alpine
+# Use a imagem base do Node.js
+FROM node:18
 
-# Definir o diretório de trabalho
-WORKDIR /usr/app
+# Define o diretório de trabalho
+WORKDIR /app
 
-# Copiar os arquivos package.json e package-lock.json
+# Copie os arquivos package.json e package-lock.json (ou yarn.lock)
 COPY package*.json ./
 
-# Instalar as dependências
+# Instale as dependências
 RUN npm install
 
-# Copiar o restante dos arquivos da aplicação
+# Copie o restante dos arquivos da aplicação
 COPY . .
 
-# Expor a porta em que a aplicação vai rodar
+# Gere o Prisma Client
+RUN npx prisma generate
+
+# Compile o TypeScript para JavaScript
+RUN npm run build
+
+# Exponha a porta em que a aplicação vai rodar
 EXPOSE 3333
 
-# Comando para rodar a aplicação
+# Defina o comando para iniciar a aplicação
 CMD ["npm", "start"]

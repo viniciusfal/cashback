@@ -22,12 +22,27 @@ import { DialogCashBack } from '@/components/dialog-cashback'
 import { RadioGroup } from '@radix-ui/react-radio-group'
 import { RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
-import { Coins, ConeIcon } from 'lucide-react'
+import { Coins } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+
+interface Passenger {
+  code: string
+  name: string
+}
+
+interface Transaction {
+  id: string
+  passenger_code: string
+  ticketPrice: number
+  local: string
+  point: string
+  createdAt: Date
+}
 
 export function ListCredits() {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false)
-  const [selectedTransaction, setSelectedTransaction] = useState(null)
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null)
   const [selectDate, setSelectDate] = useState(new Date())
   const [cashbackConfirmed, setCashbackConfirmed] = useState<{
     [key: string]: boolean
@@ -39,16 +54,19 @@ export function ListCredits() {
 
   const formattedDate = selectDate.toISOString().split('T')[0]
 
-  const { data: transactions, isLoading: isLoadingTransactions } = useQuery({
+  const { data: transactions, isLoading: isLoadingTransactions } = useQuery<
+    Transaction[]
+  >({
     queryKey: ['transactions'],
     queryFn: getTransactions,
   })
 
-  const { data: passengers, isLoading: isLoadingPassengers } = useQuery({
+  const { data: passengers, isLoading: isLoadingPassengers } = useQuery<
+    Passenger[]
+  >({
     queryKey: ['passengers'],
     queryFn: getPassenger,
   })
-
   useEffect(() => {
     const savedCashbackConfirmed = localStorage.getItem('cashbackConfirmed')
     if (savedCashbackConfirmed) {
@@ -56,7 +74,7 @@ export function ListCredits() {
     }
   }, [])
 
-  function handleDialogOpen(transaction: any) {
+  function handleDialogOpen(transaction: Transaction) {
     setSelectedTransaction(transaction)
     setDialogOpen(true)
   }
@@ -89,9 +107,9 @@ export function ListCredits() {
       if (ticketPrice >= 243.1) return `${simplescash} R$ 22,10`
     }
     if (local === 'SOBRADINHO') {
+      if (ticketPrice >= 319) return `${supercash} R$ 29`
       if (ticketPrice >= 159.5 && ticketPrice < 319)
         return `${simplescash} R$ 14,50`
-      if (ticketPrice >= 319) return `${simplescash} R$ 29`
     }
     if (local === 'PLANALTINA-GO') {
       if (ticketPrice >= 486.2) return `${supercash} R$ 44,20`
@@ -116,13 +134,13 @@ export function ListCredits() {
     return <div>Carregando...</div>
   }
 
-  const startOfDay = (date) => {
+  const startOfDay = (date: Date) => {
     const d = new Date(date)
     d.setHours(0, 0, 0, 0)
     return d
   }
 
-  const endOfDay = (date) => {
+  const endOfDay = (date: Date) => {
     const d = new Date(date)
     d.setHours(23, 59, 59, 999)
     return d
@@ -136,12 +154,10 @@ export function ListCredits() {
     )
   })
 
-  const handleDateChange = (event) => {
-    // Obtemos a data no formato 'yyyy-mm-dd'
+  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newDateString = event.target.value
     const [year, month, day] = newDateString.split('-').map(Number)
 
-    // Criar uma nova data com ano, mês e dia, e definir o horário como início do dia local
     const newDate = new Date(year, month - 1, day)
     newDate.setHours(0, 0, 0, 0)
 
@@ -161,6 +177,7 @@ export function ListCredits() {
         name,
         `R$ ${transaction.ticketPrice}`,
         transaction.local,
+        transaction.point,
         cashbackConfirmed[transaction.id]
           ? calcularCashback(transaction.local, transaction.ticketPrice)
           : 'Não habilitado',
@@ -169,19 +186,17 @@ export function ListCredits() {
     })
 
     autoTable(doc, {
-      head: [['', 'Código', 'Nome', 'Valor', 'Local', 'Cashback', 'Data']],
+      head: [
+        ['', 'Código', 'Nome', 'Valor', 'Destino', 'Ponto', 'Cashback', 'Data'],
+      ],
       body: rows,
       theme: 'striped',
-      styles: { halign: 'left', cellPadding: { vertical: 4 } },
+      styles: { halign: 'left', cellPadding: { vertical: 4, horizontal: 1.5 } },
       headStyles: {
         fillColor: [4, 120, 87],
         fontStyle: 'bold',
         textColor: [240, 253, 250],
         minCellHeight: 10,
-        cellPadding: {
-          horizontal: 2,
-          vertical: 4,
-        },
       },
       bodyStyles: {
         minCellHeight: 10,
@@ -225,7 +240,7 @@ export function ListCredits() {
             type="date"
             value={formattedDate}
             onChange={handleDateChange}
-            className="p-2 w-1/2 text-sm border-"
+            className="p-2 w-1/2 text-sm"
           />
 
           <Button onClick={() => exportPDF()} variant="outline">
@@ -241,6 +256,7 @@ export function ListCredits() {
             <TableHead className="w-[120px]">Nome</TableHead>
             <TableHead className="w-[100px]">Valor</TableHead>
             <TableHead className="w-[100px]">Local</TableHead>
+            <TableHead className="w-[100px]">Ponto</TableHead>
             <TableHead className="w-[120px]">
               <div className="flex space-x-1">
                 <Coins className="w-4 h-4" />
@@ -269,6 +285,7 @@ export function ListCredits() {
                     <TableCell>{name}</TableCell>
                     <TableCell>R$ {transaction.ticketPrice}</TableCell>
                     <TableCell>{transaction.local}</TableCell>
+                    <TableCell>{transaction.point}</TableCell>
                     <TableCell>
                       {cashbackConfirmed[transaction.id] ? (
                         <p className="text-primary">
@@ -320,6 +337,7 @@ export function ListCredits() {
                     <TableCell>{name}</TableCell>
                     <TableCell>R$ {transaction.ticketPrice}</TableCell>
                     <TableCell>{transaction.local}</TableCell>
+                    <TableCell>{transaction.point}</TableCell>
                     <TableCell>
                       {cashbackConfirmed[transaction.id] ? (
                         <p className="text-primary">

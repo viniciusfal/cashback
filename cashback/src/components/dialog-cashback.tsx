@@ -16,6 +16,7 @@ export function DialogCashBack({
   onConfirm,
   transaction,
 }: any) {
+  console.log(transaction)
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogTrigger>Open</AlertDialogTrigger>

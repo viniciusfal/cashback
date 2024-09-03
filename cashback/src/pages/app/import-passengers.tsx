@@ -20,7 +20,7 @@ interface DataRow {
 }
 
 export const ImportPassengers: React.FC = () => {
-  const [data, setData] = useState<DataRow[]>([])
+  const [data, _] = useState<DataRow[]>([])
 
   const { mutateAsync: uploadFileMutate } = useMutation({
     mutationFn: uploadFile, // Função atualizada para uploadFile

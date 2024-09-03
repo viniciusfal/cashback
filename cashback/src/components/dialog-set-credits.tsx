@@ -16,6 +16,7 @@ interface DialogSetCreditsProps {
   passengerCode: string
 }
 export function DialogSetCredits({ passengerCode }: DialogSetCreditsProps) {
+  console.log(passengerCode)
   return (
     <Dialog>
       <DialogTrigger asChild>

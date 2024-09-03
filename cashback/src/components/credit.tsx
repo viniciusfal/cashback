@@ -27,6 +27,7 @@ const signInCredits = z.object({
   passenger_code: z.string(),
   passenger_name: z.string(),
   local: z.string(),
+  point: z.string(),
 })
 
 type SignInCredits = z.infer<typeof signInCredits>
@@ -55,6 +56,7 @@ export function Credit({ passengerCode, passengerName }: CreditProps) {
         ticketPrice: parseFloat(data.ticketPrice.toString()),
         passenger_code: data.passenger_code,
         local: data.local,
+        point: data.point,
       })
 
       toast.success('Creditos registrados com sucesso')
@@ -105,14 +107,14 @@ export function Credit({ passengerCode, passengerName }: CreditProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm">Local</Label>
+              <Label className="text-sm">Destino</Label>
               <Controller
                 name="local"
                 control={control}
                 render={({ field }) => (
                   <Select {...field} onValueChange={field.onChange}>
                     <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Selecione o local" />
+                      <SelectValue placeholder="Selecione o Destino" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Brasilia">Brasilia</SelectItem>
@@ -124,6 +126,38 @@ export function Credit({ passengerCode, passengerName }: CreditProps) {
                         Planaltina-DF
                       </SelectItem>
                       <SelectItem value="Sobradinho">Sobradinho</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm">Ponto de vendas</Label>
+              <Controller
+                name="point"
+                control={control}
+                render={({ field }) => (
+                  <Select {...field} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Selecione o Ponto" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="bsb">BSB</SelectItem>
+                      <SelectItem value="formosa">Formosa</SelectItem>
+                      <SelectItem value="plan-go:s/leste">
+                        Plan-GO:S/Leste
+                      </SelectItem>
+                      <SelectItem value="plan-go:galeria">
+                        Plan-GO:Galeria
+                      </SelectItem>
+                      <SelectItem value="plango:rodoviaria">
+                        Plan-GO:Rodoviaria
+                      </SelectItem>
+                      <SelectItem value="plan-paqueta">
+                        Plan-GO:Paqueta
+                      </SelectItem>
+                      <SelectItem value="plan-df">Planaltina-DF</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
