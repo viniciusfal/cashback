@@ -13,6 +13,8 @@ interface Passenger {
   code: string
 }
 
+const BATCH_SIZE = 5000 // Ajuste o tamanho do lote conforme necessário
+
 export async function importPassengers() {
   app.register(multer.contentParser)
 
@@ -51,14 +53,22 @@ export async function importPassengers() {
 
       parser.on('end', async () => {
         try {
-          for (const passenger of passengers) {
-            const registerPassengerUseCase = makeRegisterPassenger()
+          let batch: Passenger[] = []
 
-            await registerPassengerUseCase.execute({
-              name: passenger.name,
-              code: passenger.code,
-            })
+          for (const passenger of passengers) {
+            batch.push(passenger)
+
+            if (batch.length === BATCH_SIZE) {
+              await processBatch(batch)
+              batch = []
+            }
           }
+
+          // Processa qualquer lote restante
+          if (batch.length > 0) {
+            await processBatch(batch)
+          }
+
           return reply.send({
             status: 'success',
             passengers: passengers.length,
@@ -72,4 +82,21 @@ export async function importPassengers() {
       })
     },
   )
+}
+
+async function processBatch(batch: Passenger[]) {
+  try {
+    const registerPassengerUseCase = makeRegisterPassenger()
+    await Promise.all(
+      batch.map((passenger) =>
+        registerPassengerUseCase.execute({
+          name: passenger.name,
+          code: passenger.code,
+        }),
+      ),
+    )
+  } catch (err) {
+    app.log.error('Error processing batch:', err)
+    throw err // Re-throw error to handle it in the main handler
+  }
 }

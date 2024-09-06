@@ -145,18 +145,10 @@ export function Credit({ passengerCode, passengerName }: CreditProps) {
                     <SelectContent>
                       <SelectItem value="bsb">BSB</SelectItem>
                       <SelectItem value="formosa">Formosa</SelectItem>
-                      <SelectItem value="plan-go:s/leste">
-                        Plan-GO:S/Leste
-                      </SelectItem>
-                      <SelectItem value="plan-go:galeria">
-                        Plan-GO:Galeria
-                      </SelectItem>
-                      <SelectItem value="plango:rodoviaria">
-                        Plan-GO:Rodoviaria
-                      </SelectItem>
-                      <SelectItem value="plan-paqueta">
-                        Plan-GO:Paqueta
-                      </SelectItem>
+                      <SelectItem value="s/leste">S/Leste</SelectItem>
+                      <SelectItem value="galeria">Galeria</SelectItem>
+                      <SelectItem value="arrecadacao">Arrecadação</SelectItem>
+                      <SelectItem value="paqueta">Paqueta</SelectItem>
                       <SelectItem value="plan-df">Planaltina-DF</SelectItem>
                     </SelectContent>
                   </Select>
